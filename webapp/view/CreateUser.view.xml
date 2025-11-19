@@ -1,0 +1,42 @@
+<mvc:View controllerName="sacde.RegistracionUsuariosProv.controller.CreateUser" xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
+	xmlns="sap.m">
+	<Page id="createUserPage" showNavButton="true" navButtonPress="onNavBack" class="registrationBackground">
+		<content>
+			<HBox justifyContent="Center" alignItems="Center" fitContainer="true" class="sapUiSmallMarginTop">
+				<VBox width="400px" class="sapUiSmallMargin">
+					<Bar design="Header" class="sectionHeader">
+						<contentMiddle>
+							<Title text="Creacion de usuarios" level="H4"/>
+						</contentMiddle>
+					</Bar>
+					<VBox class="sectionContent">
+						<VBox class="sapUiSmallMarginTop">
+							<Label text="Nombre completo"/>
+							<Input id="inputFullName" placeholder="Nombre completo" value="{newUser>/name}"/>
+						</VBox>
+						<VBox class="sapUiSmallMarginTop">
+							<Label text="Email"/>
+							<Input id="inputEmail" placeholder="Email" type="Email"  value="{newUser>/email}"/>
+						</VBox>
+						<VBox class="sapUiSmallMarginTop">
+							<Label text="Validar Email"/>
+							<Input id="inputEmailConfirm" placeholder="Validar Email" type="Email" />
+						</VBox>
+						<VBox class="sapUiSmallMarginTop">
+							<Label text="Contraseña"/>
+							<Input id="inputPassword" placeholder="Contraseña" type="Password"  value="{newUser>/password}"/>
+						</VBox>
+						<VBox class="sapUiSmallMarginTop">
+							<Label text="Validar Contraseña"/>
+							<Input id="inputPasswordConfirm" placeholder="Validar Contraseña" type="Password"/>
+						</VBox>
+					</VBox>
+					<HBox justifyContent="Center" class="sapUiSmallMarginTop">
+						<Button text="Cancelar" press="onNavBack" type="Transparent" class="white-background"/>
+						<Button text="Aceptar" type="Emphasized" class="sapUiSmallMarginBegin" press="onSaveUser"/>
+					</HBox>
+				</VBox>
+			</HBox>
+		</content>
+	</Page>
+</mvc:View>

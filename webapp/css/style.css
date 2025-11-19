@@ -1,0 +1,111 @@
+
+
+.sectionContainer {
+  background-color: #f2f2f2;
+  padding: 1rem;
+  border-radius: 0.25rem;
+}
+
+/* Header interno azul y header de panel */
+.sectionHeader {
+  background-image: none !important;
+  background-color: #004b8d !important;
+  color: white !important;
+}
+.white-background{
+	span{
+	background-color: #ffffff !important;}
+}
+
+/* Franja gris claro de los inputs */
+.sectionContent {
+  background-color: #e6e6e6;
+  padding: 0.75rem;
+  border-radius: 0.25rem;
+}
+
+/* Panel blanco con bordes redondeados */
+.sectionPanel {
+  background-color: white;
+  border-radius: 0.25rem;
+}
+
+.sectionHeader .sapMTitle,
+.sectionHeader .sapMTitleH4,
+.sectionHeader .sapMTitleH6 {
+  color: #ffffff !important;
+}
+
+.text-white{
+	color: #ffffff !important;
+}
+.loginBackground {
+  /* Ocupa toda la pantalla */
+  min-height: 100vh;      /* aseguramos altura completa */
+  background-color: #1b2944;  /* el azul que quieras */
+  
+}
+
+
+/* ————————————————————————————————————————————
+   Texto blanco dentro de todo el login
+   ———————————————————————————————————————————— */
+
+/* Títulos */
+/*.loginBackground .sapMTitle,*/
+/*.loginBackground .sapMTitleH2 {*/
+/*  color: #ffffff !important;*/
+/*}*/
+
+ Textos normales 
+.loginBackground .sapMText {
+  color: #ffffff !important;
+}
+
+/* Links */
+/*.loginBackground .sapMLnk {*/
+/*  color: #ffffff !important;*/
+/*}*/
+
+/* Inputs: texto que escribe el usuario */
+/*.loginBackground .sapMInputBaseContent > input {*/
+/*  color: #ffffff !important;*/
+/*}*/
+
+/* Inputs: placeholder */
+/*.loginBackground .sapMInputBaseContent > input::placeholder {*/
+/*  color: #ffffff !important;*/
+/*}*/
+
+/* Botones: override del contenido de texto del botón */
+/*.loginBackground .sapMBtn .sapMBtnContent {*/
+/*  color: #ffffff !important;*/
+/*}*/
+
+
+
+/* Fondo azul igual que el login */
+.registrationBackground {
+  background-color: #1b2944;
+}
+
+/* Forzamos altura de viewport */
+.fullHeight {
+  min-height: 100vh;
+}
+
+/* (Opcional) si quieres texto blanco dentro */
+.registrationBackground .sapMTitle,
+.registrationBackground .sapMText,
+.registrationBackground .sapMLabel,
+.registrationBackground .sapMBtn .sapMBtnContent {
+ // color: #ffffff !important;
+}
+
+.inputErrorBackground {
+  background-color: #fdecea !important; /* rojo claro */
+  border: 1px solid #e53935 !important; /* rojo */
+  border-radius: 0.2rem;
+}
+
+/* La caja central (VBox) sigue blanca, si quieres ajusta sombras aquí */

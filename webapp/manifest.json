@@ -1,0 +1,186 @@
+{
+	"_version": "1.12.0",
+	"sap.app": {
+		"id": "sacde.RegistracionUsuariosProv",
+		"type": "application",
+		"i18n": "i18n/i18n.properties",
+		"applicationVersion": {
+			"version": "1.0.0"
+		},
+		"title": "{{appTitle}}",
+		"description": "{{appDescription}}",
+		"sourceTemplate": {
+			"id": "ui5template.basicSAPUI5ApplicationProject",
+			"version": "1.40.12"
+		},
+		"crossNavigation": {
+			"inbounds": {
+				"RegistracionUsuariosProv-Display": {
+					"semanticObject": "RegistracionUsuariosProv",
+					"action": "Display",
+					"title": "{{flpTitle}}",
+					"signature": {
+						"parameters": {},
+						"additionalParameters": "allowed"
+					}
+				}
+			}
+		},
+		"dataSources": {
+			"Z_PORTAL_PROVEEDORES_SRV": {
+				"uri": "/sap/opu/odata/sap/Z_PORTAL_PROVEEDORES_SRV/",
+				"type": "OData",
+				"settings": {
+					"localUri": "localService/metadata.xml"
+				}
+			}
+		}
+	},
+	"sap.ui": {
+		"technology": "UI5",
+		"icons": {
+			"icon": "",
+			"favIcon": "",
+			"phone": "",
+			"phone@2": "",
+			"tablet": "",
+			"tablet@2": ""
+		},
+		"deviceTypes": {
+			"desktop": true,
+			"tablet": true,
+			"phone": true
+		}
+	},
+	"sap.ui5": {
+		"flexEnabled": false,
+		"rootView": {
+			"viewName": "sacde.RegistracionUsuariosProv.view.Main",
+			"type": "XML",
+			"async": true,
+			"id": "Main"
+		},
+		"dependencies": {
+			"minUI5Version": "1.65.6",
+			"libs": {
+				"sap.ui.layout": {},
+				"sap.ui.core": {},
+				"sap.m": {}
+			}
+		},
+		"contentDensities": {
+			"compact": true,
+			"cozy": true
+		},
+		"models": {
+			"i18n": {
+				"type": "sap.ui.model.resource.ResourceModel",
+				"settings": {
+					"bundleName": "sacde.RegistracionUsuariosProv.i18n.i18n"
+				}
+			},
+			"oData": {
+				"type": "sap.ui.model.odata.v2.ODataModel",
+				"settings": {
+					"defaultOperationMode": "Server",
+					"defaultBindingMode": "OneWay",
+					"useBatch": false,
+					"defaultCountMode": "Request"
+				},
+				"dataSource": "Z_PORTAL_PROVEEDORES_SRV",
+				"preload": true
+			}
+		},
+		"resources": {
+			"css": [
+				{
+					"uri": "css/style.css"
+				}
+			]
+		},
+		"routing": {
+			"config": {
+				"routerClass": "sap.m.routing.Router",
+				"viewType": "XML",
+				"async": true,
+				"viewPath": "sacde.RegistracionUsuariosProv.view",
+				"controlAggregation": "pages",
+				"controlId": "app",
+				"clearControlAggregation": false
+			},
+			"routes": [
+				{
+					"name": "TilesView",
+					"pattern": "TilesView",
+					"target": "TilesView"
+				},
+				{
+					"name": "Login",
+					"pattern": "",
+					"target": "Login"
+				},
+				{
+					"name": "Register",
+					"pattern": "register",
+					"target": "Register"
+				},
+				{
+					"name": "Main",
+					"pattern": "main",
+					"target": "Main"
+				},
+				{
+					"name": "CreateUser",
+					"pattern": "createUser",
+					"target": "CreateUser"
+				},
+				{
+					"name": "ForgotPwd",
+					"pattern": "forgot-password",
+					"target": "ForgotPwd"
+				},
+				{
+					"pattern": "reset-password",
+					"name": "ResetPassword",
+					"target": "ResetPassword"
+				}
+			],
+			"targets": {
+				"TilesView": {
+					"viewName": "TilesView",
+					"viewType": "XML"
+				},
+				"Login": {
+					"viewName": "Login",
+					"viewType": "XML"
+				},
+				"Register": {
+					"viewName": "Register",
+					"viewType": "XML"
+				},
+				"Main": {
+					"viewName": "Main",
+					"viewType": "XML"
+				},
+				"CreateUser": {
+					"viewName": "CreateUser",
+					"viewType": "XML"
+				},
+				"ForgotPwd": {
+					"viewName": "ForgotPassword",
+					"viewType": "XML",
+					"viewLevel": 1,
+					"transition": "slide"
+				},
+				"ResetPassword": {
+					"viewName": "ResetPassword",
+					"viewLevel": 1
+				}
+			}
+		}
+	},
+	"sap.platform.hcp": {
+		"uri": "webapp",
+		"_version": "1.1.0"
+	}
+}

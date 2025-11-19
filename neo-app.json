@@ -1,0 +1,60 @@
+{
+	"welcomeFile": "/webapp/index.html",
+	"authenticationMethod": "none",
+	"routes": [{
+		"path": "/resources",
+		"target": {
+			"type": "service",
+			"name": "sapui5",
+			"entryPath": "/resources"
+		},
+		"description": "SAPUI5 Resources"
+	}, {
+		"path": "/test-resources",
+		"target": {
+			"type": "service",
+			"name": "sapui5",
+			"entryPath": "/test-resources"
+		},
+		"description": "SAPUI5 Resources"
+	}, {
+		"path": "/webapp/resources",
+		"target": {
+			"type": "service",
+			"name": "sapui5",
+			"entryPath": "/resources"
+		},
+		"description": "SAPUI5 Resources"
+	}, {
+		"path": "/webapp/test-resources",
+		"target": {
+			"type": "service",
+			"name": "sapui5",
+			"entryPath": "/test-resources"
+		},
+		"description": "SAPUI5 Test Resources"
+	}, {
+		"path": "/sap/opu/odata",
+		"target": {
+			"type": "destination",
+			"name": "SACDE_GATEWAY",
+			"entryPath": "/sap/opu/odata"
+		},
+		"description": "SACDE_GATEWAY"
+	}, {
+		"path": "/services/userapi",
+		"target": {
+			"type": "service",
+			"name": "userapi"
+		},
+		"description": "User api"
+	}, {
+		"path": "/destinations/USER_API",
+		"target": {
+			"type": "destination",
+			"name": "USER_API"
+		},
+		"description": "API USER"
+	}],
+	"sendWelcomeFileRedirect": true
+}

@@ -1,0 +1,85 @@
+
+  [
+    {
+      "id": "1",
+      "rol": "admin",
+      "nombreCompleto": "Juan Pérez",
+      "email": "juan.perez@email.com",
+      "contrasena": "hashed-password-123",
+      "cuitsAsociados": ["30-12345678-9", "30-87654321-0"]
+    },
+    {
+      "id": "2",
+      "rol": "admin",
+      "nombreCompleto": "Lucía González",
+      "email": "lucia.gonzalez@email.com",
+      "contrasena": "hashed-password-456",
+      "cuitsAsociados": ["30-87654321-0"]
+    },
+    {
+      "id": "3",
+      "rol": "user",
+      "nombreCompleto": "María González",
+      "email": "maria.gonzalez@email.com",
+      "contrasena": "hashed-password-789",
+      "cuit": "30-12345678-9"
+    },
+    {
+      "id": "4",
+      "rol": "user",
+      "nombreCompleto": "Carlos Romero",
+      "email": "carlos.romero@email.com",
+      "contrasena": "hashed-password-999",
+      "cuit": "30-87654321-0"
+    },
+     {
+      "id": "5",
+      "rol": "user",
+      "nombreCompleto": "Vanesa Romero",
+      "email": "vanesa.romero@email.com",
+      "contrasena": "hashed-password-999",
+      "cuit": "30-87654321-0"
+    },
+     {
+      "id": "6",
+      "rol": "user",
+      "nombreCompleto": "Ivan Romero",
+      "email": "ivan.romero@email.com",
+      "contrasena": "hashed-password-999",
+      "cuit": "30-87654321-0"
+    },
+     {
+      "id": "7",
+      "rol": "user",
+      "nombreCompleto": "Pedro Romero",
+      "email": "pedro.romero@email.com",
+      "contrasena": "hashed-password-999",
+      "cuit": "30-87654321-0"
+    },
+     {
+      "id": "8",
+      "rol": "user",
+      "nombreCompleto": "Juan Romero",
+      "email": "juan.romero@email.com",
+      "contrasena": "hashed-password-999",
+      "cuit": "30-12345678-9"
+    },
+     {
+      "id": "9",
+      "rol": "user",
+      "nombreCompleto": "Mateo Romero",
+      "email": "mateo.romero@email.com",
+      "contrasena": "hashed-password-999",
+      "cuit": "30-87654321-0"
+    },
+     {
+      "id": "10",
+      "rol": "user",
+      "nombreCompleto": "Mateo Romero",
+      "email": "guillermo27@gmail.com",
+      "contrasena": "12345678",
+      "cuit": "30-87654321-0"
+    }
+    
+  ]
+
