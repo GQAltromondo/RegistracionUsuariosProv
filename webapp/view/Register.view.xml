@@ -21,9 +21,9 @@
 						<Input id="inputConfirmarContrasena" placeholder="Confirmar Contraseña" type="Password" required="true"
 							liveChange="onLiveConfirmPasswordChange"/>
 						<Input id="inputCUIT" placeholder="NIF/CUIT" value="{usuario>/cuit}" liveChange=".onLiveChangeCuit" required="true"/>
-						<Input id="inputRazonSocial" placeholder="Razón Social" required="true" value="{usuario>/razon_soc}"/>
+						<Input id="inputRazonSocial" placeholder="Razón Social" required="true" value="{usuario>/razon_soc}" liveChange="_updateFormState"/>
 						<!--<Button text="Registrar" press="onRegistrarAdmin" type="Emphasized"/>-->
-						<Button text="Registrar" press="onCreate" type="Emphasized"/>
+						<Button text="Registrar" press="onCreate" type="Emphasized"  enabled="{viewModel>/formValid}"/>
 					</VBox>
 				</FlexBox>
 			</Page>

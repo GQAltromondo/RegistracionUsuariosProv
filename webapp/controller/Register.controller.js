@@ -12,7 +12,9 @@ sap.ui.define([
 	return Controller.extend("sacde.RegistracionUsuariosProv.controller.Register", {
 		onInit: function () {
 			this._Validation = Validation;
-
+			ModelHelper.getModel(this.getView(),"viewModel").setData({
+				formValid: false
+			})
 			this.getPaises()
 			const oRouter = this.getOwnerComponent().getRouter();
 			oRouter.getRoute("Register").attachPatternMatched(this._onRouteMatched, this);
@@ -83,6 +85,7 @@ sap.ui.define([
 			const isValid = this._Validation.validarEmail(email);
 			oEvent.getSource().setValueState(isValid ? "None" : "Error");
 			oEvent.getSource().setValueStateText("Email inválido");
+			this._updateFormState();
 		},
 		onLiveConfirmEmailChange: function () {
 			const email = this.byId("inputEmail").getValue();
@@ -92,6 +95,7 @@ sap.ui.define([
 
 			input.setValueState(isEqual ? "None" : "Error");
 			input.setValueStateText("Los correos no coinciden");
+			this._updateFormState();
 		},
 
 		onLivePasswordChange: function (oEvent) {
@@ -99,6 +103,7 @@ sap.ui.define([
 			const isValid = this._Validation.validarContrasena(password);
 			oEvent.getSource().setValueState(isValid ? "None" : "Error");
 			oEvent.getSource().setValueStateText("Debe tener al menos 8 caracteres, una mayúscula y un símbolo");
+			this._updateFormState();
 		},
 
 		onLiveConfirmPasswordChange: function () {
@@ -109,6 +114,7 @@ sap.ui.define([
 
 			input.setValueState(isEqual ? "None" : "Error");
 			input.setValueStateText("Las contraseñas no coinciden");
+			this._updateFormState();
 		},
 		onLiveChangeCuit: function (oEvent) {
 			const oInput = oEvent.getSource();
@@ -134,6 +140,7 @@ sap.ui.define([
 				oInput.setValueState("None");
 				oInput.setValueStateText("");
 			}
+			this._updateFormState();
 		},
 
 		onCreate: async function () {
@@ -466,7 +473,7 @@ sap.ui.define([
 				if (!createRes.ok) {
 					const txt = await createRes.text();
 					if (createRes.status === 409) {
-					//	sap.m.MessageBox.error("Ya existe un usuario con estos datos.");
+						//	sap.m.MessageBox.error("Ya existe un usuario con estos datos.");
 						return;
 					}
 					throw new Error(`Error creando usuario (${createRes.status}): ${txt}`);
@@ -490,6 +497,60 @@ sap.ui.define([
 				sap.m.MessageBox.error("No se pudo crear el usuario en IAS: " + (err.message || err));
 			}
 		},
+	_isFormValid: function () {
+    const aControlIds = [
+        "inputNombre",
+        "countryComboBox",
+        "inputEmail",
+        "inputValidarEmail",
+        "inputContrasena",
+        "inputConfirmarContrasena",
+        "inputCUIT",
+        "inputRazonSocial"
+    ];
+
+    const that = this;
+    let bFormValid = true;
+
+    aControlIds.forEach(function (sId) {
+        const oControl = that.byId(sId);
+        if (!oControl) {
+            return; // por si algún id no existe
+        }
+
+        // 1) Si tiene estado de error → formulario inválido
+        if (oControl.getValueState && oControl.getValueState() === "Error") {
+            bFormValid = false;
+            return;
+        }
+
+        // 2) Si es requerido y está vacío → inválido
+        if (oControl.getRequired && oControl.getRequired()) {
+            // ComboBox
+            if (oControl instanceof sap.m.ComboBox) {
+                if (!oControl.getSelectedKey()) {
+                    bFormValid = false;
+                    return;
+                }
+            }
+            // Input
+            if (oControl.getValue) {
+                if (!oControl.getValue().trim()) {
+                    bFormValid = false;
+                    return;
+                }
+            }
+        }
+    });
+
+    return bFormValid;
+},
+
+
+		_updateFormState: function () {
+			const bValid = this._isFormValid();
+			this.getView().getModel("viewModel").setProperty("/formValid", bValid);
+		}
 
 	});
 });
