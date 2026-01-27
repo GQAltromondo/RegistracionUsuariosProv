@@ -1,0 +1,37 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+
+    <Dialog
+        id="newSocietyDialog"
+        title="Agregar Sociedad"
+        contentWidth="420px"
+       >
+
+        <content>
+            <VBox  class="fragmSociedad-container"  >
+            	<VBox class="fragmSociedad-content">
+                <Label text="CUIT" labelFor="newSocCuitInput" />
+                <Input
+                    id="newSocCuitInput"
+                    maxLength="11"
+                    liveChange=".onNewSocietyCuitLiveChange" />
+
+                <Label text="Razón Social" labelFor="newSocRazonInput" />
+                <Input
+                    id="newSocRazonInput"
+                    maxLength="80" />
+            </VBox>
+            </VBox>
+        </content>
+
+        <beginButton>
+            <Button text="Guardar" type="Emphasized" press=".onNewSocietySave" />
+        </beginButton>
+
+        <endButton>
+            <Button text="Cancelar" press=".onNewSocietyCancel" />
+        </endButton>
+
+    </Dialog>
+</core:FragmentDefinition>

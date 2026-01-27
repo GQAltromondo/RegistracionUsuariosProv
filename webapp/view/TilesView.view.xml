@@ -4,12 +4,14 @@
 		<content>
 			<VBox justifyContent="Center" alignItems="Center" height="100%">
 				<Image src="img/logosacde.png" width="115px"/>
-				<VBox width="50%" class="sapUiSmallMarginEnd">
+				<VBox  class="sapUiSmallMarginEnd">
 					<Label text="Seleccione la sociedad" labelFor="inputNIT"/>
-					<ComboBox id="cuitComboBox" items="{ path: '/cuitsAsociados', templateShareable: true }" selectionChange="onCuitChange" width="100%"
-						placeholder="Selecciona un CUIT" selectedItem="">
+					<HBox width="100%" justifyContent="SpaceBetween">
+					<ComboBox id="cuitComboBox" items="{ path: '/cuitsAsociados', templateShareable: true }" selectionChange="onCuitChange" width="700px" class="sapUiTinyMarginEnd">
 						<core:Item key="{key}" text="{= ${key} + ' - ' + ${text} }"/>
 					</ComboBox>
+					<Button icon="sap-icon://add" press="newSociety"></Button>
+					</HBox>
 				</VBox>
 				<HBox width="700px" height="300px" justifyContent="SpaceBetween" alignItems="Center">
 					<GenericTile  id="tileUsuarios" header="Creacion de Usuarios" press="onTileCreateUserPress" visible ="false">
