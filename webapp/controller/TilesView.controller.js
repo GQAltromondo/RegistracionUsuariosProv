@@ -1,16 +1,22 @@
 sap.ui.define([
 	"sap/ui/core/mvc/Controller",
 	"sap/ui/core/routing/History",
-	"sap/m/MessageToast"
-], function (Controller, History, MessageToast) {
+	"sap/m/MessageToast",
+	"sap/m/Dialog",
+	"sap/m/Button",
+	"sap/m/Label",
+	"sap/m/Input",
+	"sap/m/VBox",
+	"sap/ui/core/Fragment"
+], function (Controller, History, MessageToast, Dialog, Button, Label, Input, VBox,Fragment) {
 	"use strict";
 
 	return Controller.extend("sacde.RegistracionUsuariosProv.controller.TilesView", {
-		
+
 		onInit: function () {
 			const oRouter = this.getOwnerComponent().getRouter();
 			oRouter.getRoute("TilesView").attachPatternMatched(this._onRouteMatched, this);
-		
+
 		},
 
 		onNavBack: function () {
@@ -24,13 +30,13 @@ sap.ui.define([
 			}
 		},
 		_onRouteMatched: function () {
-				this.byId("cuitComboBox").setSelectedKey("")
+			this.byId("cuitComboBox").setSelectedKey("")
 			const oUserModel = this.getOwnerComponent().getModel("usersModel");
 			const oData = oUserModel.getData();
 
 			// Validar si hay datos de usuario
-			if (!oData || 
-				(Array.isArray(oData) && oData.length === 0) || 
+			if (!oData ||
+				(Array.isArray(oData) && oData.length === 0) ||
 				(typeof oData === "object" && !Array.isArray(oData) && Object.keys(oData).length === 0)) {
 				this.getOwnerComponent().getRouter().navTo("Login");
 				return;
@@ -38,8 +44,8 @@ sap.ui.define([
 
 			this.getView().setModel(oUserModel);
 
-this.onCuitChange()
-			// Preparar modelos adicionales para la vista
+			this.onCuitChange()
+				// Preparar modelos adicionales para la vista
 			this._prepararModelosUsuario(oUserModel);
 		},
 
@@ -112,38 +118,34 @@ this.onCuitChange()
 		// onTilePortalPress: function () {
 		// 	window.open("https://flpnwc-nlf6u6854p.dispatcher.br1.hana.ondemand.com/sites/PortalProveedoresSACDE#Shell-home");
 		// },
-	onTileRegProvee: function () {
-    const sCuit = this.byId("cuitComboBox").getSelectedKey();
+		onTileRegProvee: function () {
+			const sCuit = this.byId("cuitComboBox").getSelectedKey();
 
-    if (!sCuit) {
-        sap.m.MessageToast.show("Seleccione un CUIT antes de continuar.");
-        return;
-    }
+			if (!sCuit) {
+				sap.m.MessageToast.show("Seleccione un CUIT antes de continuar.");
+				return;
+			}
 
-    const sUrl = `https://registracionproveedores-goio5drrj1.dispatcher.br1.hana.ondemand.com/?CUIT=${encodeURIComponent(sCuit)}&hc_reset`;
-    window.open(sUrl, "_blank");
-},
-
-	
-
+			const sUrl =
+				`https://registracionproveedores-goio5drrj1.dispatcher.br1.hana.ondemand.com/?CUIT=${encodeURIComponent(sCuit)}&hc_reset`;
+			window.open(sUrl, "_blank");
+		},
 
 		onTilePortalPress: function () {
 			window.open("https://flpnwc-goio5drrj1.dispatcher.br1.hana.ondemand.com/sites/portalproveedoressacde#Shell-home");
 		},
 
 		onCuitChange: function () {
-				const oView = this.getView();
-			const sCuit=	this.byId("cuitComboBox").getSelectedKey()
-			if (sCuit === ""){
-					oView.byId("tileUsuarios").setVisible(false);
-						oView.byId("tilePortal").setVisible(false);
-							oView.byId("tileRegProvee").setVisible(false)
-							return
-			} 
+			const oView = this.getView();
+			const sCuit = this.byId("cuitComboBox").getSelectedKey()
+			if (sCuit === "") {
+				oView.byId("tileUsuarios").setVisible(false);
+				oView.byId("tilePortal").setVisible(false);
+				oView.byId("tileRegProvee").setVisible(false)
+				return
+			}
 			const sPais = "AR";
-		
 
-		
 			localStorage.setItem("selectedCuit", sCuit);
 
 			const aFilters = [
@@ -163,21 +165,71 @@ this.onCuitChange()
 					oView.setModel(oUserModel, "dataUser");
 
 					oView.byId("tileUsuarios").setVisible(true);
-				
 
 					if (aResults.length > 0 && aResults[0].Estado === "A") {
 						oView.byId("tilePortal").setVisible(true);
-							oView.byId("tileRegProvee").setVisible(false);
+						oView.byId("tileRegProvee").setVisible(false);
 					} else {
 						oView.byId("tilePortal").setVisible(false);
-							oView.byId("tileRegProvee").setVisible(true);
+						oView.byId("tileRegProvee").setVisible(true);
 					}
 				},
 				error: (error) => {
 					console.error("Error al cargar datos generales:", error);
 				}
 			});
-		}
+		},
+		newSociety: async function () {
+			if (!this._pNewSocietyDialog) {
+				this._pNewSocietyDialog = Fragment.load({
+					id: this.getView().getId(),
+					name: "sacde.RegistracionUsuariosProv.fragments.NewSocietyDialog",
+					controller: this
+				}).then((oDialog) => {
+					this.getView().addDependent(oDialog);
+					return oDialog;
+				});
+			}
+
+			const oDialog = await this._pNewSocietyDialog;
+
+			this.byId("newSocCuitInput").setValue("");
+			this.byId("newSocRazonInput").setValue("");
+
+			oDialog.open();
+		},
+
+		onNewSocietyCancel: async function () {
+			const oDialog = await this._pNewSocietyDialog;
+			oDialog.close();
+		},
+
+		onNewSocietySave: async function () {
+			const sCuit = this.byId("newSocCuitInput").getValue().trim();
+			const sRazon = this.byId("newSocRazonInput").getValue().trim();
+
+			if (!sCuit || sCuit.length !== 11) {
+				MessageToast.show("Ingresá un CUIT válido (11 dígitos).");
+				return;
+			}
+			if (!sRazon) {
+				MessageToast.show("Ingresá la Razón Social.");
+				return;
+			}
+
+			console.log("Nueva sociedad:", {
+				cuit: sCuit,
+				razonSocial: sRazon
+			});
+
+			const oDialog = await this._pNewSocietyDialog;
+			oDialog.close();
+		},
+
+		onNewSocietyCuitLiveChange: function (oEvent) {
+			const s = (oEvent.getParameter("value") || "").replace(/\D/g, "");
+			oEvent.getSource().setValue(s);
+		},
 
 	});
 });

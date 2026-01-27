@@ -45,44 +45,28 @@
   background-color: #1b2944;  /* el azul que quieras */
   
 }
+.fragmSociedad-container{
+	background-color :#e6e6e6;
+}
+.sapMPopup-CTX .sapMIBar.sapMHeader-CTX{
+	background-color: #004b8d ;
+}
 
+.sapMDialogTitle {
+	color:#fff !important;
+}
 
-/* ————————————————————————————————————————————
-   Texto blanco dentro de todo el login
-   ———————————————————————————————————————————— */
+.fragmSociedad-content{
+	width: 90%;
+	margin:auto;
+padding: 10px;
+}
 
-/* Títulos */
-/*.loginBackground .sapMTitle,*/
-/*.loginBackground .sapMTitleH2 {*/
-/*  color: #ffffff !important;*/
-/*}*/
 
  Textos normales 
 .loginBackground .sapMText {
   color: #ffffff !important;
 }
-
-/* Links */
-/*.loginBackground .sapMLnk {*/
-/*  color: #ffffff !important;*/
-/*}*/
-
-/* Inputs: texto que escribe el usuario */
-/*.loginBackground .sapMInputBaseContent > input {*/
-/*  color: #ffffff !important;*/
-/*}*/
-
-/* Inputs: placeholder */
-/*.loginBackground .sapMInputBaseContent > input::placeholder {*/
-/*  color: #ffffff !important;*/
-/*}*/
-
-/* Botones: override del contenido de texto del botón */
-/*.loginBackground .sapMBtn .sapMBtnContent {*/
-/*  color: #ffffff !important;*/
-/*}*/
-
-
 
 /* Fondo azul igual que el login */
 .registrationBackground {
