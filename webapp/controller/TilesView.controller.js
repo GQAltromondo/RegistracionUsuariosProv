@@ -1,37 +1,20 @@
 sap.ui.define([
-	"sap/ui/core/mvc/Controller",
-	"sap/ui/core/routing/History",
+	"sacde/RegistracionUsuariosProv/controller/BaseController",
 	"sap/m/MessageToast",
-	"sap/m/Dialog",
-	"sap/m/Button",
-	"sap/m/Label",
-	"sap/m/Input",
-	"sap/m/VBox",
+	"sap/m/MessageBox",
 	"sap/ui/core/Fragment",
-	"sacde/RegistracionUsuariosProv/utils/Validations"
-], function (Controller, History, MessageToast, Dialog, Button, Label, Input, VBox, Fragment, Validations) {
+	"sacde/RegistracionUsuariosProv/utils/Validations",
+	"sacde/RegistracionUsuariosProv/utils/ModelHelper"
+], function (BaseController, MessageToast, MessageBox, Fragment, Validations, ModelHelper) {
 	"use strict";
 
-	return Controller.extend("sacde.RegistracionUsuariosProv.controller.TilesView", {
+	return BaseController.extend("sacde.RegistracionUsuariosProv.controller.TilesView", {
 
 		onInit: function () {
-			const oRouter = this.getOwnerComponent().getRouter();
-			oRouter.getRoute("TilesView").attachPatternMatched(this._onRouteMatched, this);
-
+			this.getRouter().getRoute("TilesView").attachPatternMatched(this._onRouteMatched, this);
 		},
-
-		onNavBack: function () {
-			var oHistory = History.getInstance();
-			var sPreviousHash = oHistory.getPreviousHash();
-
-			if (sPreviousHash !== undefined) {
-				window.history.go(-1);
-			} else {
-				UIComponent.getRouterFor(this).navTo("Main", {}, /*noHistory*/ true);
-			}
-		},
-		_onRouteMatched: function () {
-			this.byId("cuitComboBox").setSelectedKey("")
+			_onRouteMatched: function () {
+			this.byId("cuitComboBox").setSelectedKey("");
 			const oUserModel = this.getOwnerComponent().getModel("usersModel");
 			const oData = oUserModel.getData();
 
@@ -39,14 +22,14 @@ sap.ui.define([
 			if (!oData ||
 				(Array.isArray(oData) && oData.length === 0) ||
 				(typeof oData === "object" && !Array.isArray(oData) && Object.keys(oData).length === 0)) {
-				this.getOwnerComponent().getRouter().navTo("Login");
+				this.navTo("Login");
 				return;
 			}
 
 			this.getView().setModel(oUserModel);
-
-			this.onCuitChange()
-				// Preparar modelos adicionales para la vista
+			this.onCuitChange();
+			
+			// Preparar modelos adicionales para la vista
 			this._prepararModelosUsuario(oUserModel);
 		},
 
@@ -55,7 +38,7 @@ sap.ui.define([
 
 			if (!oUsuario) {
 				MessageToast.show("Sesión expirada. Redirigiendo al login...");
-				this.getOwnerComponent().getRouter().navTo("Login");
+				this.navTo("Login");
 				return;
 			}
 
@@ -108,22 +91,14 @@ sap.ui.define([
 		},
 
 		onTileCreateUserPress: function () {
-			this.getOwnerComponent().getRouter().navTo("Main");
+			this.navTo("Main");
 		},
 
-		// onTileRegProvee: function () {
-		// window.open( "https://registracionproveedores-nlf6u6854p.dispatcher.br1.hana.ondemand.com/?hc_reset")
-
-		// },
-
-		// onTilePortalPress: function () {
-		// 	window.open("https://flpnwc-nlf6u6854p.dispatcher.br1.hana.ondemand.com/sites/PortalProveedoresSACDE#Shell-home");
-		// },
 		onTileRegProvee: function () {
 			const sCuit = this.byId("cuitComboBox").getSelectedKey();
 
 			if (!sCuit) {
-				sap.m.MessageToast.show("Seleccione un CUIT antes de continuar.");
+				MessageToast.show("Seleccione un CUIT antes de continuar.");
 				return;
 			}
 
@@ -138,14 +113,20 @@ sap.ui.define([
 
 		onCuitChange: function () {
 			const oView = this.getView();
-			const sCuit = this.byId("cuitComboBox").getSelectedKey()
+			const sCuit = this.byId("cuitComboBox").getSelectedKey();
+			
 			if (sCuit === "") {
 				oView.byId("tileUsuarios").setVisible(false);
 				oView.byId("tilePortal").setVisible(false);
-				oView.byId("tileRegProvee").setVisible(false)
-				return
+				oView.byId("tileRegProvee").setVisible(false);
+				return;
 			}
-			const sPais = "AR";
+			
+			// Obtener país del usuario logueado
+			const oUsersModel = this.getOwnerComponent().getModel("usersModel");
+			const aUsers = oUsersModel.getData();
+			const oAdminUser = Array.isArray(aUsers) ? aUsers.find(user => user.adminUser === "X") : null;
+			const sPais = (oAdminUser && oAdminUser.pais) || "AR";
 
 			localStorage.setItem("selectedCuit", sCuit);
 
@@ -175,8 +156,8 @@ sap.ui.define([
 						oView.byId("tileRegProvee").setVisible(true);
 					}
 				},
-				error: (error) => {
-					console.error("Error al cargar datos generales:", error);
+				error: (oError) => {
+					jQuery.sap.log.error("Error al cargar datos generales:", oError);
 				}
 			});
 		},
@@ -194,8 +175,14 @@ sap.ui.define([
 
 			const oDialog = await this._pNewSocietyDialog;
 
-			this.byId("newSocCuitInput").setValue("");
-			this.byId("newSocRazonInput").setValue("");
+			// Limpiar campos y estados
+			const oInputCuit = this.byId("newSocCuitInput");
+			const oInputRazon = this.byId("newSocRazonInput");
+			
+			oInputCuit.setValue("");
+			oInputCuit.setValueState("None");
+			oInputRazon.setValue("");
+			oInputRazon.setValueState("None");
 
 			oDialog.open();
 		},
@@ -207,8 +194,9 @@ sap.ui.define([
 
 		onNewSocietySave: async function () {
 			const oInputCuit = this.byId("newSocCuitInput");
+			const oInputRazon = this.byId("newSocRazonInput");
 			const sCuit = oInputCuit.getValue().trim();
-			const sRazon = this.byId("newSocRazonInput").getValue().trim();
+			const sRazon = oInputRazon.getValue().trim();
 
 			// Validar CUIT usando la validación existente
 			const oValidation = Validations.isValidCuit(sCuit);
@@ -220,17 +208,70 @@ sap.ui.define([
 			}
 			
 			if (!sRazon) {
+				oInputRazon.setValueState("Error");
+				oInputRazon.setValueStateText("Campo obligatorio");
 				MessageToast.show("Ingresá la Razón Social.");
 				return;
 			}
 
-			console.log("Nueva sociedad:", {
-				cuit: sCuit,
-				razonSocial: sRazon
-			});
+			// Obtener datos del usuario logueado
+			const oUsersModel = this.getOwnerComponent().getModel("usersModel");
+			const aUsers = oUsersModel.getData();
+			
+			// Buscar el primer usuario admin para obtener sus datos
+			const oAdminUser = Array.isArray(aUsers) 
+				? aUsers.find(user => user.adminUser === "X") 
+				: null;
 
-			const oDialog = await this._pNewSocietyDialog;
-			oDialog.close();
+			if (!oAdminUser) {
+				MessageBox.error("No se encontraron datos del usuario logueado.");
+				return;
+			}
+
+			// Obtener contraseña del modelo de login
+			const oLoginModel = this.getOwnerComponent().getModel("loginModel");
+			const oLoginData = oLoginModel.getData();
+
+			// Armar payload con datos del usuario logueado + nueva sociedad
+			const oNewSociety = {
+				usuario: oAdminUser.usuario,
+				pais: oAdminUser.pais || "AR",
+				email: oAdminUser.email,
+				contrasena: oLoginData.password,
+				cuit: sCuit,
+				razon_soc: sRazon,
+				admin: "X"
+			};
+
+			// Crear registro en backend
+			const oModel = this.getOwnerComponent().getModel("oData");
+			const sEntitySet = "/ApplicationLoginSet";
+
+			this.showBusy();
+
+			oModel.create(sEntitySet, oNewSociety, {
+				success: async (oData, response) => {
+					this.hideBusy();
+					MessageToast.show("Sociedad agregada exitosamente.");
+					
+					// Cerrar diálogo y limpiar campos
+					this._pNewSocietyDialog.then((oDialog) => {
+						oDialog.close();
+						oInputCuit.setValue("");
+						oInputCuit.setValueState("None");
+						oInputRazon.setValue("");
+						oInputRazon.setValueState("None");
+					});
+
+					// Refrescar CUITs y seleccionar el nuevo
+					await this._refreshCuitsAsociados(sCuit);
+				},
+				error: (oError) => {
+					this.hideBusy();
+					const sMsg = this.parseError(oError, "Error al crear la sociedad.");
+					MessageBox.error(sMsg);
+				}
+			});
 		},
 
 		onNewSocietyCuitLiveChange: function (oEvent) {
@@ -251,6 +292,48 @@ sap.ui.define([
 				oInput.setValueStateText("");
 			}
 		},
+
+		_refreshCuitsAsociados: function (sCuitToSelect) {
+			return new Promise((resolve, reject) => {
+				const oLoginData = this.getOwnerComponent().getModel("loginModel").getData();
+				const oDataModel = this.getOwnerComponent().getModel("oData");
+
+				const aFilters = [
+					new sap.ui.model.Filter("email", sap.ui.model.FilterOperator.EQ, oLoginData.email),
+					new sap.ui.model.Filter("contrasena", sap.ui.model.FilterOperator.EQ, oLoginData.password)
+				];
+
+				oDataModel.read("/CuitsAsociadosSet", {
+					filters: aFilters,
+					success: (oData) => {
+						const aResults = oData.results || [];
+						
+						// Actualizar modelo principal
+						const oUsersModel = ModelHelper.getModel(this.getOwnerComponent(), "usersModel");
+						oUsersModel.setProperty("/", aResults);
+
+						// Preparar modelos de la vista
+						this._prepararModelosUsuario(oUsersModel);
+
+						// Seleccionar el CUIT recién creado
+						if (sCuitToSelect) {
+							const oCbx = this.byId("cuitComboBox");
+							if (oCbx) {
+								oCbx.setSelectedKey(sCuitToSelect);
+								// Disparar cambio para actualizar tiles
+								this.onCuitChange();
+							}
+						}
+
+						resolve(aResults);
+					},
+					error: (err) => {
+						MessageBox.warning("No se pudieron actualizar los CUITs asociados.");
+						reject(err);
+					}
+				});
+			});
+		}
 
 	});
 });

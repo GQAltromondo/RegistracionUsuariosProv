@@ -1,49 +1,30 @@
 sap.ui.define([
-	"sap/ui/core/mvc/Controller",
+	"sacde/RegistracionUsuariosProv/controller/BaseController",
 	"sacde/RegistracionUsuariosProv/utils/Validations",
 	"sacde/RegistracionUsuariosProv/utils/ModelHelper",
+	"sacde/RegistracionUsuariosProv/utils/IASHelper",
 	"sap/m/MessageToast",
-	"sap/m/MessageBox",
-	"sap/ui/core/routing/History",
-	"sap/ui/core/UIComponent"
-], function (Controller, Validation, ModelHelper, MessageToast, MessageBox, History, UIComponent) {
+	"sap/m/MessageBox"
+], function (BaseController, Validations, ModelHelper, IASHelper, MessageToast, MessageBox) {
 	"use strict";
 
-	return Controller.extend("sacde.RegistracionUsuariosProv.controller.Register", {
+	return BaseController.extend("sacde.RegistracionUsuariosProv.controller.Register", {
+		
 		onInit: function () {
-			this._Validation = Validation;
-			ModelHelper.getModel(this.getView(),"viewModel").setData({
+			this._Validation = Validations;
+			ModelHelper.getModel(this.getView(), "viewModel").setData({
 				formValid: false
-			})
-			this.getPaises()
-			const oRouter = this.getOwnerComponent().getRouter();
-			oRouter.getRoute("Register").attachPatternMatched(this._onRouteMatched, this);
+			});
+			this.getPaises();
+			this.getRouter().getRoute("Register").attachPatternMatched(this._onRouteMatched, this);
 		},
+
 		_onRouteMatched: function () {
-			const oView = this.getView()
-			oView.byId("inputValidarEmail").setValue("")
-			oView.byId("inputConfirmarContrasena").setValue("")
+			const oView = this.getView();
+			oView.byId("inputValidarEmail").setValue("");
+			oView.byId("inputConfirmarContrasena").setValue("");
 			const oUsuarioModel = new sap.ui.model.json.JSONModel({});
-
-			// Asignarlo al view bajo el nombre 'usuario'
 			this.getView().setModel(oUsuarioModel, "usuario");
-		},
-		onNavBack: function () {
-			var oHistory = History.getInstance();
-			var sPreviousHash = oHistory.getPreviousHash();
-
-			if (sPreviousHash !== undefined) {
-				window.history.go(-1);
-			} else {
-				UIComponent.getRouterFor(this).navTo("Main", {}, /*noHistory*/ true);
-			}
-		},
-		_hashPassword: async function (password) {
-			const encoder = new TextEncoder();
-			const data = encoder.encode(password);
-			const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-			const hashArray = Array.from(new Uint8Array(hashBuffer));
-			return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 		},
 		getPaises: function () {
 			const oDataModel = this.getOwnerComponent().getModel("oData");
@@ -54,28 +35,26 @@ sap.ui.define([
 			];
 
 			const oViewModel = ModelHelper.getModel(this.getView(), "countryModel");
-			oViewModel.setSizeLimit(1000); // mostrar más de 100
+			oViewModel.setSizeLimit(1000);
 
 			oDataModel.read("/ListasSet", {
 				filters: aFilters,
 				success: (data) => {
 					const aResults = data.results || [];
 
-					// Solo items de la lista "PAISES"
 					const aPaises = aResults.filter(r =>
 						String(r.NombreLista || "").trim().toUpperCase() === "PAISES"
 					);
 
-					// Opcional: ordenar por el texto visible
 					aPaises.sort((a, b) =>
 						String(a.Texto || "").localeCompare(String(b.Texto || ""), "es")
 					);
 
 					oViewModel.setProperty("/countries", aPaises);
 				},
-				error: (e) => {
-					console.error("Error al cargar países:", e);
-					sap.m.MessageToast.show("No se pudieron cargar los países.");
+				error: (oError) => {
+					jQuery.sap.log.error("Error al cargar países:", oError);
+					MessageToast.show("No se pudieron cargar los países.");
 				}
 			});
 		},
@@ -170,10 +149,7 @@ sap.ui.define([
 
 			let bError = false;
 
-			aCampos.forEach(({
-				key,
-				id
-			}) => {
+			aCampos.forEach(({ key, id }) => {
 				const sValor = oUser[key];
 				const oInput = oView.byId(id);
 				if (!sValor || sValor.trim() === "") {
@@ -209,54 +185,50 @@ sap.ui.define([
 			if (oUser.email !== sEmailConfirm) {
 				oView.byId("inputValidarEmail").setValueState("Error");
 				oView.byId("inputValidarEmail").setValueStateText("Los emails no coinciden");
-				sap.m.MessageBox.error("Los emails no coinciden.");
+				MessageBox.error("Los emails no coinciden.");
 				return;
 			}
 
 			if (oUser.contrasena !== sPasswordConfirm) {
 				oView.byId("inputConfirmarContrasena").setValueState("Error");
 				oView.byId("inputConfirmarContrasena").setValueStateText("Las contraseñas no coinciden");
-				sap.m.MessageBox.error("Las contraseñas no coinciden.");
+				MessageBox.error("Las contraseñas no coinciden.");
 				return;
 			}
 
 			// Si hay campos incompletos, detener
 			if (bError) {
-				sap.m.MessageBox.warning("Por favor, complete todos los campos obligatorios.");
+				MessageBox.warning("Por favor, complete todos los campos obligatorios.");
 				return;
 			}
-
-			//oUser.contrasena = await this._hashPassword(oUser.contrasena);
 
 			const sEntitySet = "/ApplicationLoginSet";
 			const oModel = oView.getModel("oData");
 
+			this.showBusy();
+
 			oModel.create(sEntitySet, oUser, {
-				success: (oData, response) => {
-					console.log(oData);
-					this.createIASUser(); // Crear usuario en IAS luego del backend
-					sap.m.MessageToast.show("Registro creado exitosamente.");
-					// Limpieza opcional
-					this.getOwnerComponent().getRouter().navTo("Login");
+				success: async () => {
+					// Crear usuario en IAS usando helper centralizado
+					try {
+						await IASHelper.createUser({
+							email: oUser.email,
+							nombre: oUser.usuario,
+							pais: oUser.pais
+						}, true); // true = es admin
+					} catch (e) {
+						// IASHelper ya muestra el error
+					}
+					
+					this.hideBusy();
+					MessageToast.show("Registro creado exitosamente.");
+					this.navTo("Login");
 				},
 				error: (oError) => {
-					let sMsg = "Error al crear el registro.";
-
-					try {
-						// Algunos servicios devuelven el JSON dentro de responseText
-						const oResponse = oError.responseText ? JSON.parse(oError.responseText) : {};
-						const sBackendMsg = oResponse.error.message.value;
-
-						if (sBackendMsg) {
-							sMsg = sBackendMsg; // "El usuario ya existe."
-						}
-					} catch (e) {
-						// Si no se puede parsear, dejamos el mensaje por defecto
-					}
-
-					sap.m.MessageBox.error(sMsg);
+					this.hideBusy();
+					const sMsg = this.parseError(oError, "Error al crear el registro.");
+					MessageBox.error(sMsg);
 				}
-
 			});
 		},
 
@@ -373,129 +345,7 @@ sap.ui.define([
 			oModelUsers.refresh();
 
 			MessageToast.show("Administrador registrado correctamente.");
-			this.getOwnerComponent().getRouter().navTo("Main");
-		},
-		getIASToken: function () {
-			const url = "/sap/opu/odata/sap/Z_PORTAL_PROVEEDORES_SRV/";
-
-			return new Promise((resolve, reject) => {
-				jQuery.ajax({
-					url: url,
-					method: "GET",
-					headers: {
-						"X-CSRF-Token": "Fetch"
-					},
-					success: function (data, textStatus, jqXHR) {
-						const sToken = jqXHR.getResponseHeader("X-CSRF-Token");
-						if (sToken) {
-							console.log("CSRF Token obtenido:", sToken);
-							resolve(sToken);
-						} else {
-							console.warn("No se encontró el token CSRF en los headers.");
-							reject("No se encontró el token CSRF.");
-						}
-					},
-					error: function (err) {
-						console.error("Error al obtener token CSRF:", err);
-						reject("No se pudo obtener el token de autenticación.");
-					}
-				});
-			});
-		},
-		createIASUser: async function () {
-			const userModel = this.getView().getModel("usuario");
-			const userData = userModel.getData();
-
-			// --- Nombre y país ---
-			const fullName = (userData.usuario || "").trim();
-			const parts = fullName.split(/\s+/);
-			const givenName = parts.shift() || "";
-			const familyName = parts.join(" ") || "";
-			const country = (userData.pais || "").toUpperCase();
-
-			// --- Token IAS ---
-			let sToken;
-			try {
-				sToken = await this.getIASToken();
-			} catch (e) {
-				sap.m.MessageBox.error("No se pudo obtener el token de IAS: " + e);
-				return;
-			}
-
-			// --- Endpoint SCIM (destino a IAS) ---
-			const SCIM_BASE = "/destinations/USER_API/Users";
-
-			// --- Body de creación (SIN password; solo el POST que funcionó) ---
-			const createBody = {
-				schemas: ["urn:ietf:params:scim:schemas:core:2.0:User"],
-				userName: (userData.email || "").trim(),
-				name: {
-					givenName,
-					familyName
-				},
-				emails: [{
-					value: (userData.email || "").trim(),
-					type: "work",
-					primary: true
-				}],
-				addresses: country ? [{
-					type: "work",
-					country
-				}] : [],
-				"groups": [{
-					"value": "OSP_Proveedor",
-					"$ref": "https://webidetesting8346823-goio5drrj1.dispatcher.br1.hana.ondemand.com/destinations/USER_API/Groups/5d28844a90b0db20fb6608a4",
-					"display": "OSP Proveedor"
-				}, {
-					"value": "OSP_Proveedor_Admin",
-					"$ref": "https://webidetesting8345862-goio5drrj1.dispatcher.br1.hana.ondemand.com/destinations/USER_API/Groups/689343c5a0d22e7230594751",
-					"display": "OSP Proveedor Admin"
-				}],
-				//	active: true,
-				// Pediste llevar esto en el POST
-				//	passwordStatus: "enabled",
-				//		password: userData.contrasena
-			};
-
-			const headersJsonAuth = {
-				"Content-Type": "application/scim+json",
-				"Authorization": `Bearer ${sToken}`
-			};
-
-			try {
-				// --- SOLO POST (sin intentos de fallback/PUT) ---
-				const createRes = await fetch(SCIM_BASE, {
-					method: "POST",
-					headers: headersJsonAuth,
-					body: JSON.stringify(createBody)
-				});
-
-				if (!createRes.ok) {
-					const txt = await createRes.text();
-					if (createRes.status === 409) {
-						//	sap.m.MessageBox.error("Ya existe un usuario con estos datos.");
-						return;
-					}
-					throw new Error(`Error creando usuario (${createRes.status}): ${txt}`);
-				}
-
-				const createdUser = await createRes.json();
-
-				sap.m.MessageToast.show("Usuario creado en IAS.");
-				// Limpiar sólo campos locales (no seteamos clave aquí)
-				if (this.byId("inpPassword")) this.byId("inpPassword").setValue("");
-				if ("passwordTemporal" in userData) {
-					userData.passwordTemporal = "";
-					userModel.refresh(true);
-				}
-
-				// Si querés usar el id más adelante:
-				return createdUser.id;
-
-			} catch (err) {
-				jQuery.sap.log.error("Error IAS", err);
-				sap.m.MessageBox.error("No se pudo crear el usuario en IAS: " + (err.message || err));
-			}
+			this.navTo("Main");
 		},
 	_isFormValid: function () {
     const aControlIds = [
