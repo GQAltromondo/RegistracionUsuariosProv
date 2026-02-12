@@ -15,12 +15,14 @@
                 <Input
                     id="newSocCuitInput"
                     maxLength="11"
-                    liveChange=".onNewSocietyCuitLiveChange" />
+                    liveChange=".onNewSocietyCuitLiveChange"
+                    required="true" />
 
                 <Label text="Razón Social" labelFor="newSocRazonInput" />
                 <Input
                     id="newSocRazonInput"
-                    maxLength="80" />
+                    maxLength="80"  
+                    required="true" />
             </VBox>
             </VBox>
         </content>

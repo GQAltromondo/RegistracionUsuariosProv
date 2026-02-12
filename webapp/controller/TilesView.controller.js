@@ -7,8 +7,9 @@ sap.ui.define([
 	"sap/m/Label",
 	"sap/m/Input",
 	"sap/m/VBox",
-	"sap/ui/core/Fragment"
-], function (Controller, History, MessageToast, Dialog, Button, Label, Input, VBox,Fragment) {
+	"sap/ui/core/Fragment",
+	"sacde/RegistracionUsuariosProv/utils/Validations"
+], function (Controller, History, MessageToast, Dialog, Button, Label, Input, VBox, Fragment, Validations) {
 	"use strict";
 
 	return Controller.extend("sacde.RegistracionUsuariosProv.controller.TilesView", {
@@ -205,13 +206,19 @@ sap.ui.define([
 		},
 
 		onNewSocietySave: async function () {
-			const sCuit = this.byId("newSocCuitInput").getValue().trim();
+			const oInputCuit = this.byId("newSocCuitInput");
+			const sCuit = oInputCuit.getValue().trim();
 			const sRazon = this.byId("newSocRazonInput").getValue().trim();
 
-			if (!sCuit || sCuit.length !== 11) {
-				MessageToast.show("Ingresá un CUIT válido (11 dígitos).");
+			// Validar CUIT usando la validación existente
+			const oValidation = Validations.isValidCuit(sCuit);
+			if (!oValidation.valid) {
+				oInputCuit.setValueState("Error");
+				oInputCuit.setValueStateText(oValidation.text);
+				MessageToast.show(oValidation.text);
 				return;
 			}
+			
 			if (!sRazon) {
 				MessageToast.show("Ingresá la Razón Social.");
 				return;
@@ -227,8 +234,22 @@ sap.ui.define([
 		},
 
 		onNewSocietyCuitLiveChange: function (oEvent) {
-			const s = (oEvent.getParameter("value") || "").replace(/\D/g, "");
-			oEvent.getSource().setValue(s);
+			const oInput = oEvent.getSource();
+			const sValue = (oEvent.getParameter("value") || "").replace(/\D/g, "");
+			
+			// Actualizar valor solo con números
+			oInput.setValue(sValue);
+			
+			// Validar CUIT usando la validación existente
+			const oValidation = Validations.isValidCuit(sValue);
+			
+			if (!oValidation.valid) {
+				oInput.setValueState("Error");
+				oInput.setValueStateText(oValidation.text);
+			} else {
+				oInput.setValueState("Success");
+				oInput.setValueStateText("");
+			}
 		},
 
 	});
