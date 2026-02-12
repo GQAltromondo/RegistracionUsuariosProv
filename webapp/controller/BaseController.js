@@ -2,7 +2,7 @@ sap.ui.define([
 	"sap/ui/core/mvc/Controller",
 	"sap/ui/core/UIComponent",
 	"sap/ui/core/routing/History",
-	"sap/m/BusyIndicator"
+	"sap/ui/core/BusyIndicator"
 ], function (Controller, UIComponent, History, BusyIndicator) {
 	"use strict";
 
