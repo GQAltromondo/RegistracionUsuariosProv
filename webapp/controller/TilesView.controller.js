@@ -4,8 +4,9 @@ sap.ui.define([
 	"sap/m/MessageBox",
 	"sap/ui/core/Fragment",
 	"sacde/RegistracionUsuariosProv/utils/Validations",
-	"sacde/RegistracionUsuariosProv/utils/ModelHelper"
-], function (BaseController, MessageToast, MessageBox, Fragment, Validations, ModelHelper) {
+	"sacde/RegistracionUsuariosProv/utils/ModelHelper",
+	"sacde/RegistracionUsuariosProv/utils/IASHelper"
+], function (BaseController, MessageToast, MessageBox, Fragment, Validations, ModelHelper, IASHelper) {
 	"use strict";
 
 	return BaseController.extend("sacde.RegistracionUsuariosProv.controller.TilesView", {
@@ -228,16 +229,12 @@ sap.ui.define([
 				return;
 			}
 
-			// Obtener contraseña del modelo de login
-			const oLoginModel = this.getOwnerComponent().getModel("loginModel");
-			const oLoginData = oLoginModel.getData();
-
-			// Armar payload con datos del usuario logueado + nueva sociedad
+			// Armar payload con datos del usuario logueado + nueva sociedad (contrasena vacía - login vía IAS)
 			const oNewSociety = {
 				usuario: oAdminUser.usuario,
 				pais: oAdminUser.pais || "AR",
 				email: oAdminUser.email,
-				contrasena: oLoginData.password,
+				contrasena: "",
 				cuit: sCuit,
 				razon_soc: sRazon,
 				admin: "X"
@@ -251,6 +248,17 @@ sap.ui.define([
 
 			oModel.create(sEntitySet, oNewSociety, {
 				success: async (oData, response) => {
+					// Crear usuario en IAS como admin
+					try {
+						await IASHelper.createUser({
+							email: oAdminUser.email,
+							nombre: oAdminUser.usuario,
+							pais: oAdminUser.pais || "AR"
+						}, true); // true = es admin
+					} catch (e) {
+						// IASHelper ya muestra el error
+					}
+
 					this.hideBusy();
 					MessageToast.show("Sociedad agregada exitosamente.");
 					

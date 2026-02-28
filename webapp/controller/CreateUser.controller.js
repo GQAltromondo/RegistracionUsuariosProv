@@ -64,10 +64,11 @@ sap.ui.define([
 			const oAdminUser = Array.isArray(aUsers) ? aUsers.find(user => user.adminUser === "X") : null;
 			const sPais = (oAdminUser && oAdminUser.pais) || "AR";
 
+			// Payload para DB: contrasena vacía (login solo vía IAS, clave solo en IAS)
 			const oUserPayload = {
 				usuario: sName,
 				email: sEmail,
-				contrasena: sPass,
+				contrasena: "",
 				cuit: sCuitSeleccionado,
 				admin: "",
 				pais: sPais
@@ -80,12 +81,13 @@ sap.ui.define([
 
 			oModel.create(sEntitySet, oUserPayload, {
 				success: async () => {
-					// Crear usuario en IAS usando helper centralizado (no es admin)
+					// Crear usuario en IAS con contraseña (no es admin)
 					try {
 						await IASHelper.createUser({
 							email: sEmail,
 							nombre: sName,
-							pais: sPais
+							pais: sPais,
+							password: sPass
 						}, false);
 					} catch (e) {
 						// IASHelper ya muestra el error

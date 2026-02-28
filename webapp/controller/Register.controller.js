@@ -205,16 +205,21 @@ sap.ui.define([
 			const sEntitySet = "/ApplicationLoginSet";
 			const oModel = oView.getModel("oData");
 
+			// Payload para DB: contrasena vacía (login solo vía IAS, clave solo en IAS)
+			const oUserDb = jQuery.extend({}, oUser);
+			oUserDb.contrasena = "";
+
 			this.showBusy();
 
-			oModel.create(sEntitySet, oUser, {
+			oModel.create(sEntitySet, oUserDb, {
 				success: async () => {
-					// Crear usuario en IAS usando helper centralizado
+					// Crear usuario en IAS con contraseña (no se envía email de cambio - configurar en IAS)
 					try {
 						await IASHelper.createUser({
 							email: oUser.email,
 							nombre: oUser.usuario,
-							pais: oUser.pais
+							pais: oUser.pais,
+							password: oUser.contrasena
 						}, true); // true = es admin
 					} catch (e) {
 						// IASHelper ya muestra el error

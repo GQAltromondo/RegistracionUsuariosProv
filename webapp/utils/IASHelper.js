@@ -43,8 +43,10 @@ sap.ui.define([
 		 * @param {string} oUserData.email - Email del usuario
 		 * @param {string} oUserData.nombre - Nombre completo
 		 * @param {string} oUserData.pais - Código de país
+		 * @param {string} [oUserData.password] - Contraseña inicial (se pasa solo a IAS, no a la base)
 		 * @param {boolean} bIsAdmin - Si es administrador
 		 * @returns {Promise<object>} Usuario creado
+		 * @remarks Para desactivar el email de cambio de contraseña, configurar en IAS Admin Console (KBA 3086234)
 		 */
 		createUser: async function (oUserData, bIsAdmin) {
 			var sToken;
@@ -79,6 +81,7 @@ sap.ui.define([
 			var oCreateBody = {
 				schemas: ["urn:ietf:params:scim:schemas:core:2.0:User"],
 				userName: (oUserData.email || "").trim(),
+				active: true,
 				name: {
 					givenName: givenName,
 					familyName: familyName
@@ -86,7 +89,8 @@ sap.ui.define([
 				emails: [{
 					value: (oUserData.email || "").trim(),
 					type: "work",
-					primary: true
+					primary: true,
+					verified: true  // RFC 7643: evita email de verificación (usuarios creados on-behalf)
 				}],
 				addresses: country ? [{
 					type: "work",
@@ -94,6 +98,13 @@ sap.ui.define([
 				}] : [],
 				groups: aGroups
 			};
+
+			// Contraseña: se pasa solo a IAS (no a la base). IAS la toma como definitiva.
+			if (oUserData.password && oUserData.password.trim()) {
+				oCreateBody.password = oUserData.password.trim();
+				// passwordStatus: "initial" = pide cambio al primer login.
+				// No enviar passwordStatus para que IAS use la contraseña enviada sin pedir cambio.
+			}
 
 			var oHeaders = {
 				"Content-Type": "application/scim+json",
