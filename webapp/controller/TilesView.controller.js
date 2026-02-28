@@ -253,7 +253,8 @@ sap.ui.define([
 						await IASHelper.createUser({
 							email: oAdminUser.email,
 							nombre: oAdminUser.usuario,
-							pais: oAdminUser.pais || "AR"
+							pais: oAdminUser.pais || "AR",
+							cuit: sCuit
 						}, true); // true = es admin
 					} catch (e) {
 						// IASHelper ya muestra el error

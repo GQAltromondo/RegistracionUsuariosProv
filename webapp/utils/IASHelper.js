@@ -44,6 +44,7 @@ sap.ui.define([
 		 * @param {string} oUserData.nombre - Nombre completo
 		 * @param {string} oUserData.pais - Código de país
 		 * @param {string} [oUserData.password] - Contraseña inicial (se pasa solo a IAS, no a la base)
+		 * @param {string} [oUserData.cuit] - CUIT (se envía como customAttribute1 en IAS)
 		 * @param {boolean} bIsAdmin - Si es administrador
 		 * @returns {Promise<object>} Usuario creado
 		 * @remarks Para desactivar el email de cambio de contraseña, configurar en IAS Admin Console (KBA 3086234)
@@ -78,8 +79,14 @@ sap.ui.define([
 				});
 			}
 
+			var aSchemas = ["urn:ietf:params:scim:schemas:core:2.0:User"];
+			var sCuit = (oUserData.cuit || "").trim();
+			if (sCuit) {
+				aSchemas.push("urn:sap:cloud:scim:schemas:extension:custom:2.0:User");
+			}
+
 			var oCreateBody = {
-				schemas: ["urn:ietf:params:scim:schemas:core:2.0:User"],
+				schemas: aSchemas,
 				userName: (oUserData.email || "").trim(),
 				active: true,
 				name: {
@@ -99,11 +106,21 @@ sap.ui.define([
 				groups: aGroups
 			};
 
-			// Contraseña: se pasa solo a IAS (no a la base). IAS la toma como definitiva.
+			// Contraseña: se pasa solo a IAS (no a la base).
+			// passwordStatus: "enabled" = IAS usa la contraseña enviada sin pedir cambio ni enviar email de activación.
 			if (oUserData.password && oUserData.password.trim()) {
 				oCreateBody.password = oUserData.password.trim();
-				// passwordStatus: "initial" = pide cambio al primer login.
-				// No enviar passwordStatus para que IAS use la contraseña enviada sin pedir cambio.
+				oCreateBody.passwordStatus = "enabled";
+			}
+
+			// Custom Attribute 1: CUIT
+			if (sCuit) {
+				oCreateBody["urn:sap:cloud:scim:schemas:extension:custom:2.0:User"] = {
+					attributes: [{
+						name: "customAttribute1",
+						value: sCuit
+					}]
+				};
 			}
 
 			var oHeaders = {

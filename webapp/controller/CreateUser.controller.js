@@ -87,7 +87,8 @@ sap.ui.define([
 							email: sEmail,
 							nombre: sName,
 							pais: sPais,
-							password: sPass
+							password: sPass,
+							cuit: sCuitSeleccionado
 						}, false);
 					} catch (e) {
 						// IASHelper ya muestra el error
