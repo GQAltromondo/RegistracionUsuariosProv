@@ -88,7 +88,8 @@ sap.ui.define([
 							nombre: sName,
 							pais: sPais,
 							password: sPass,
-							cuit: sCuitSeleccionado
+							cuit: sCuitSeleccionado,
+							customAttribute2: sCuitSeleccionado
 						}, false);
 					} catch (e) {
 						// IASHelper ya muestra el error
