@@ -254,8 +254,7 @@ sap.ui.define([
 							email: oAdminUser.email,
 							nombre: oAdminUser.usuario,
 							pais: oAdminUser.pais || "AR",
-							cuit: sCuit,
-							customAttribute2: sCuit
+							cuit: sCuit
 						}, true); // true = es admin
 					} catch (e) {
 						// IASHelper ya muestra el error

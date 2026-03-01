@@ -45,7 +45,6 @@ sap.ui.define([
 		 * @param {string} oUserData.pais - Código de país
 		 * @param {string} [oUserData.password] - Contraseña inicial (se pasa solo a IAS, no a la base)
 		 * @param {string} [oUserData.cuit] - CUIT (se envía como customAttribute1 en IAS)
-		 * @param {string} [oUserData.customAttribute2] - Valor para customAttribute2 en IAS
 		 * @param {boolean} bIsAdmin - Si es administrador
 		 * @returns {Promise<object>} Usuario creado
 		 * @remarks Para desactivar el email de cambio de contraseña, configurar en IAS Admin Console (KBA 3086234)
@@ -86,7 +85,6 @@ sap.ui.define([
 				"urn:sap:cloud:scim:schemas:extension:custom:2.0:User"
 			];
 			var sCuit = (oUserData.cuit || "").trim();
-			var sCustomAttr2 = (oUserData.customAttribute2 || "").trim();
 
 			var oCreateBody = {
 				schemas: aSchemas,
@@ -116,16 +114,9 @@ sap.ui.define([
 				oCreateBody.passwordStatus = "enabled";
 			}
 
-			// Custom Attributes: CUIT (customAttribute1) y customAttribute2
-			var aCustomAttrs = [];
-			if (sCuit) {
-				aCustomAttrs.push({ name: "customAttribute1", value: sCuit });
-			}
-			if (sCustomAttr2) {
-				aCustomAttrs.push({ name: "customAttribute2", value: sCustomAttr2 });
-			}
+			// Custom Attribute 1: CUIT
 			oCreateBody["urn:sap:cloud:scim:schemas:extension:custom:2.0:User"] = {
-				attributes: aCustomAttrs
+				attributes: sCuit ? [{ name: "customAttribute1", value: sCuit }] : []
 			};
 
 			var oHeaders = {

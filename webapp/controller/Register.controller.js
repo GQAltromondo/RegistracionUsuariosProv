@@ -220,8 +220,7 @@ sap.ui.define([
 							nombre: oUser.usuario,
 							pais: oUser.pais,
 							password: oUser.contrasena,
-							cuit: oUser.cuit,
-							customAttribute2: oUser.cuit
+							cuit: oUser.cuit
 						}, true); // true = es admin
 					} catch (e) {
 						// IASHelper ya muestra el error
