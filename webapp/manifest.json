@@ -129,6 +129,11 @@
 					"pattern": "",
 					"target": "Main"
 				},
+            {
+                "name": "MainExplicit",
+                "pattern": "main",
+                "target": "Main"
+            },
 				{
 					"name": "CreateUser",
 					"pattern": "createUser",
