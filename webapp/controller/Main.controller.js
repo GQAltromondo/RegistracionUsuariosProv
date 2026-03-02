@@ -137,6 +137,16 @@ sap.ui.define([
 			this.navTo("CreateUser");
 		},
 
+		// Navegar a la pantalla de selección de CUIT / tiles
+		onGoToTiles: function () {
+			this.navTo("TilesView");
+		},
+
+		// Navegar a la pantalla de registro
+		onGoToRegister: function () {
+			this.navTo("Register");
+		},
+
 		onCuitChange: function (oEvent) {
 			const sCuit = oEvent.getParameter("selectedItem").getKey();
 			const oUsuariosPorCuitModel = this.getView().getModel("UsuariosPorCuitModel");
