@@ -116,7 +116,7 @@
 				},
 				{
 					"name": "Login",
-					"pattern": "",
+					"pattern": "login",
 					"target": "Login"
 				},
 				{
@@ -126,7 +126,7 @@
 				},
 				{
 					"name": "Main",
-					"pattern": "main",
+					"pattern": "",
 					"target": "Main"
 				},
 				{
