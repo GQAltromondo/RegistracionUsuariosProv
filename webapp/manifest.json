@@ -118,6 +118,10 @@
 					"name": "CreateUser",
 					"pattern": "createUser",
 					"target": "CreateUser"
+				},{
+					"name": "Main",
+					"pattern": "main",
+					"target": "Main"
 				}
 			],
 			"targets": {
@@ -127,6 +131,9 @@
 				},
 				"CreateUser": {
 					"viewName": "CreateUser",
+					"viewType": "XML"
+				},"Main": {
+					"viewName": "Main",
 					"viewType": "XML"
 				}
 			}
