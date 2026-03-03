@@ -63,6 +63,18 @@ sap.ui.define([
 				var sEmailTemp = bIsDev ? "guillermo.quattrocchi@altromondo.com.ar" : userInfo.email;
 				var sEmail = (sEmailTemp === "mgutierrez@inclusion.cloud") ? "sdbracamonte@gmail.com" : sEmailTemp;
 
+				// Asegurar que el modelo de login tenga email (evita filtros con null)
+				try {
+					const oLoginModel = this.getOwnerComponent().getModel("loginModel");
+					if (oLoginModel) {
+						oLoginModel.setProperty("/email", sEmail);
+						// dejar contraseña vacía por defecto (mejor que null para filtros OData)
+						oLoginModel.setProperty("/password", "");
+					}
+				} catch (e) {
+					// no crítico
+				}
+
 				const cuits = await this.getCuitAsociados(sEmail);
 
 				const sUrl = `/destinations/USER_API/Users?filter=emails eq '${sEmail}'`;
