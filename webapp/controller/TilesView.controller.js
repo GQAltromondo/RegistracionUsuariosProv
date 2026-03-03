@@ -25,7 +25,8 @@ sap.ui.define([
 					const oUserModelUpdated = this.getOwnerComponent().getModel("usersModel");
 					const oDataUpdated = oUserModelUpdated.getData();
 					if (!oDataUpdated || (Array.isArray(oDataUpdated) && oDataUpdated.length === 0)) {
-						this.navTo("Login");
+						// no data from IAS, permanecemos en esta vista y mostramos aviso
+						MessageToast.show("No se encontraron usuarios asociados.");
 						return;
 					}
 					this.getView().setModel(oUserModelUpdated);
@@ -33,14 +34,13 @@ sap.ui.define([
 					this._prepararModelosUsuario(oUserModelUpdated);
 					return;
 				} catch (e) {
-					// Si falla, intentar usar usersModel existente y si no hay datos redirigir a Login
-					const oUserModel = this.getOwnerComponent().getModel("usersModel");
-					const oData = oUserModel.getData();
-					if (!oData ||
-						(Array.isArray(oData) && oData.length === 0) ||
-						(typeof oData === "object" && !Array.isArray(oData) && Object.keys(oData).length === 0)) {
-						this.navTo("Login");
-						return;
+				// Si falla, intentar usar usersModel existente y si no hay datos mostrar mensaje
+				const oUserModel = this.getOwnerComponent().getModel("usersModel");
+				const oData = oUserModel.getData();
+				if (!oData ||
+					(Array.isArray(oData) && oData.length === 0) ||
+					(typeof oData === "object" && !Array.isArray(oData) && Object.keys(oData).length === 0)) {
+					MessageToast.show("No se encontraron datos de usuario.");
 					}
 					this.getView().setModel(oUserModel);
 					this.onCuitChange();
@@ -239,7 +239,8 @@ sap.ui.define([
 		},
 
 		onTileCreateUserPress: function () {
-			this.navTo("Main");
+			// ahora redirige directamente al formulario de creación de usuario
+			this.navTo("CreateUser");
 		},
 
 		onTileRegProvee: function () {
