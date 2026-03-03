@@ -219,7 +219,7 @@ sap.ui.define([
 					new sap.ui.model.Filter("contrasena", sap.ui.model.FilterOperator.EQ, loginData.password)
 				];
 
-				oModel.read("/CuitsAsociadosSet", {
+				oModel.read("/", {
 					filters: aFilters,
 					success: (oData) => {
 						const usersModel = ModelHelper.getModel(this.getOwnerComponent(), "usersModel");
