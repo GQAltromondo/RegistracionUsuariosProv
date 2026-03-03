@@ -46,7 +46,7 @@ sap.ui.define([
 
 				// 2) Validación de sesión/datos
 				if (!Array.isArray(aUsersFresh) || aUsersFresh.length === 0) {
-					this.navTo("Login");
+					this.navTo("TilesView");
 					return;
 				}
 
@@ -64,11 +64,20 @@ sap.ui.define([
 
 				// Si no hay ningún admin, navegar a Login
 				if (aAdminCuits.length === 0) {
-					this.navTo("Login");
+					this.navTo("TilesView");
 					return;
 				}
 
 				oView.setModel(new sap.ui.model.json.JSONModel(aAdminCuits), "AdminCuitsModel");
+
+			// Setear CuitsModel para el ComboBox
+			const aCuitsModel = aAdminCuits.map(function(c) {
+				return {
+					id: String(c.cuit).trim(),
+					descripcion: String(c.cuit).trim() + " - " + (c.razonSocial || "").trim()
+				};
+			}).sort(function(a, b) { return a.id.localeCompare(b.id); });
+			oView.setModel(new sap.ui.model.json.JSONModel(aCuitsModel), "CuitsModel");
 
 				// 5) Set de CUITs con admin para lookup O(1)
 				const adminCuitSet = new Set(aAdminCuits.map(a => a.cuit));
@@ -109,7 +118,7 @@ sap.ui.define([
 				this.hideBusy();
 				// Fallback: si no hay nada en usersModel, redirigir a Login
 				if (!aUserData || (Array.isArray(aUserData) && aUserData.length === 0)) {
-					this.navTo("Login");
+					this.navTo("TilesView");
 				}
 			}
 		},
@@ -205,8 +214,7 @@ sap.ui.define([
 				const oModel = this.getView().getModel("oData");
 
 				const aFilters = [
-					new sap.ui.model.Filter("email", sap.ui.model.FilterOperator.EQ, loginData.email),
-					new sap.ui.model.Filter("contrasena", sap.ui.model.FilterOperator.EQ, loginData.password)
+					new sap.ui.model.Filter("email", sap.ui.model.FilterOperator.EQ, loginData.email)
 				];
 
 				oModel.read("/CuitsAsociadosSet", {

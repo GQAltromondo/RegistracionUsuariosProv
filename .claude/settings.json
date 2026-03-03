@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e \":*)",
+      "Bash(node \"c:/Users/Guillote/Desktop/ALTROMONDO/RegistracionUsuariosProv/_fix_main.js\")"
+    ]
+  }
+}

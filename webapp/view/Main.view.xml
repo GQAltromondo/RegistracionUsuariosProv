@@ -3,71 +3,69 @@
           xmlns="sap.m"
           xmlns:core="sap.ui.core"
           displayBlock="true">
-  <App id="app">
-    <Page id="page" class="registrationBackground" showNavButton="true" navButtonPress="onNavBack">
-      <content>
-        <HBox class="loginBackground" justifyContent="Center" width="100%">
-          <VBox class="sectionContainer sapUiSmallMargin" width="80%">
-            <Bar design="Header" class="sectionHeader">
-              <contentMiddle>
-                <Title text="Creacion de usuarios" level="H4"/>
-              </contentMiddle>
-            </Bar>
-            <VBox class="sectionContent sapUiSmallMargin">
-              <Text text="{usuarioActual>/0/usuario}" wrapping="false" class="sapUiSmallMarginBottom sapUiTinyMarginTop"/>
-              <HBox width="100%">
-                <VBox width="50%" class="sapUiSmallMarginEnd">
-                  <Label text="Numero de identificacion tributaria" labelFor="cuitComboBox"/>
-                  <ComboBox id="cuitComboBox" selectionChange="onCuitChange" width="100%"
-                            placeholder="Selecciona un CUIT"
-                            items="{path: 'usersModel>/cuitsAsociados', templateShareable: true}">
-                    <core:Item key="{usersModel>key}" text="{= ${usersModel>key} + ' - ' + ${usersModel>text} }"/>
-                  </ComboBox>
-                </VBox>
-              </HBox>
-            </VBox>
+	<Page id="page" class="registrationBackground" showNavButton="true" navButtonPress="onNavBack">
+		<content>
+			<HBox class="loginBackground" justifyContent="Center" width="100%">
+				<VBox class="sectionContainer sapUiSmallMargin" width="80%">
+					<Bar design="Header" class="sectionHeader">
+						<contentMiddle>
+							<Title text="Creacion de usuarios" level="H4"/>
+						</contentMiddle>
+					</Bar>
+					<VBox class="sectionContent sapUiSmallMargin">
+						<Text text="{usuarioActual>/0/usuario}" wrapping="false" class="sapUiSmallMarginBottom sapUiTinyMarginTop"/>
+						<HBox width="100%">
+							<VBox width="50%" class="sapUiSmallMarginEnd">
+								<Label text="Numero de identificacion tributaria" labelFor="cuitComboBox"/>
+								<ComboBox id="cuitComboBox" selectionChange="onCuitChange" width="100%"
+										  placeholder="Selecciona un CUIT"
+										  items="{ path: 'CuitsModel>/', templateShareable: true }">
+									<core:Item key="{CuitsModel>id}" text="{CuitsModel>descripcion}"/>
+								</ComboBox>
+							</VBox>
+						</HBox>
+					</VBox>
 
-            <Panel class="sectionPanel">
-              <headerToolbar>
-                <Toolbar class="sectionHeader">
-                  <Title text="USUARIOS" level="H6"/>
-                  <Button text="Refresh" press="_onRouteMatched"/>
-                </Toolbar>
-              </headerToolbar>
+					<Panel class="sectionPanel">
+						<headerToolbar>
+							<Toolbar class="sectionHeader">
+								<Title text="USUARIOS" level="H6"/>
+								<Button text="Refresh" press="_onRouteMatched"/>
+							</Toolbar>
+						</headerToolbar>
 
-              <Table id="userTable" mode="SingleSelectMaster" noDataText="No hay usuarios." items="{path: 'UsuariosModel>/'}" itemPress="onUserPress">
-                <columns>
-                  <Column>
-                    <Text text="Nombre Completo"/>
-                  </Column>
-                  <Column>
-                    <Text text="Correo Electrónico"/>
-                  </Column>
-                  <Column>
-                    <Text text=""/>
-                  </Column>
-                </columns>
-                <items>
-                  <ColumnListItem type="Active" press="onUserPress">
-                    <cells>
-                      <Text text="{UsuariosModel>usuario}"/>
-                      <Text text="{UsuariosModel>email}"/>
-                      <HBox justifyContent="Center">
-                        <Button icon="sap-icon://delete" press="onDelete" tooltip="Eliminar" type="Transparent"/>
-                      </HBox>
-                    </cells>
-                  </ColumnListItem>
-                </items>
-              </Table>
+						<Table id="userTable" mode="SingleSelectMaster" noDataText="No hay usuarios." items="{path: 'UsuariosModel>/'}" itemPress="onUserPress">
+							<columns>
+								<Column>
+									<Text text="Nombre Completo"/>
+								</Column>
+								<Column>
+									<Text text="Correo Electrónico"/>
+								</Column>
+								<Column>
+									<Text text=""/>
+								</Column>
+							</columns>
+							<items>
+								<ColumnListItem type="Active" press="onUserPress">
+									<cells>
+										<Text text="{UsuariosModel>usuario}"/>
+										<Text text="{UsuariosModel>email}"/>
+										<HBox justifyContent="Center">
+											<Button icon="sap-icon://delete" press="onDelete" tooltip="Eliminar" type="Transparent"/>
+										</HBox>
+									</cells>
+								</ColumnListItem>
+							</items>
+						</Table>
 
-              <HBox alignItems="Center" class="sapUiSmallMarginTop">
-                <Button text="+ Agregar Usuarios" type="Transparent" press="onAddUser" enabled="{= ${UsuariosModel>/}.length &lt; 5 }"/>
-                <Text text="Llegaste al limite de 5 usuarios" visible="{= ${UsuariosModel>/}.length === 5 }" class="sapUiSmallMarginBegin"/>
-              </HBox>
-            </Panel>
-          </VBox>
-        </HBox>
-      </content>
-    </Page>
-  </App>
+						<HBox alignItems="Center" class="sapUiSmallMarginTop">
+							<Button text="+ Agregar Usuarios" type="Transparent" press="onAddUser" enabled="{= ${UsuariosModel>/}.length &lt; 5 }"/>
+							<Text text="Llegaste al limite de 5 usuarios" visible="{= ${UsuariosModel>/}.length === 5 }" class="sapUiSmallMarginBegin"/>
+						</HBox>
+					</Panel>
+				</VBox>
+			</HBox>
+		</content>
+	</Page>
 </mvc:View>

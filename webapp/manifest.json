@@ -55,10 +55,9 @@
 	"sap.ui5": {
 		"flexEnabled": false,
 		"rootView": {
-			"viewName": "sacde.RegistracionUsuariosProv.view.TilesView",
+			"viewName": "sacde.RegistracionUsuariosProv.view.App",
 			"type": "XML",
-			"async": true,
-			"id": "app"
+			"async": true
 		},
 		"dependencies": {
 			"minUI5Version": "1.65.6",
@@ -111,14 +110,15 @@
 			"routes": [
 				{
 					"name": "TilesView",
-					"pattern": "TilesView",
+					"pattern": "",
 					"target": "TilesView"
 				},
 				{
 					"name": "CreateUser",
 					"pattern": "createUser",
 					"target": "CreateUser"
-				},{
+				},
+				{
 					"name": "Main",
 					"pattern": "main",
 					"target": "Main"
@@ -132,7 +132,8 @@
 				"CreateUser": {
 					"viewName": "CreateUser",
 					"viewType": "XML"
-				},"Main": {
+				},
+				"Main": {
 					"viewName": "Main",
 					"viewType": "XML"
 				}
