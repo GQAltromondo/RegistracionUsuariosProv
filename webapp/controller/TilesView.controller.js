@@ -236,8 +236,7 @@ sap.ui.define([
 		},
 
 		onTileCreateUserPress: function () {
-			// ahora redirige directamente al formulario de creación de usuario
-			this.navTo("CreateUser");
+			this.navTo("Main");
 		},
 
 		onTileRegProvee: function () {
