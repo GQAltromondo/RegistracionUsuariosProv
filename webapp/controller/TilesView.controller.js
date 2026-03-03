@@ -19,11 +19,31 @@ sap.ui.define([
 			const oUserModel = this.getOwnerComponent().getModel("usersModel");
 			const oData = oUserModel.getData();
 
-			// Validar si hay datos de usuario
+			// Validar si hay datos de usuario; si no hay, intentar obtenerlos desde USER_API
 			if (!oData ||
 				(Array.isArray(oData) && oData.length === 0) ||
 				(typeof oData === "object" && !Array.isArray(oData) && Object.keys(oData).length === 0)) {
-				this.navTo("Login");
+				this.loadUsersFromUserAPI()
+					.then(async (res) => {
+						try {
+							// getCuitAsociados actualizará el modelo de CUITs y también el usersModel
+							await this.getCuitAsociados(res.email);
+							const oUserModelUpdated = this.getOwnerComponent().getModel("usersModel");
+							const oDataUpdated = oUserModelUpdated.getData();
+							if (!oDataUpdated || (Array.isArray(oDataUpdated) && oDataUpdated.length === 0)) {
+								this.navTo("Login");
+								return;
+							}
+							this.getView().setModel(oUserModelUpdated);
+							this.onCuitChange();
+							this._prepararModelosUsuario(oUserModelUpdated);
+						} catch (e) {
+							this.navTo("Login");
+						}
+					})
+					.catch(() => {
+						this.navTo("Login");
+					});
 				return;
 			}
 
@@ -32,6 +52,126 @@ sap.ui.define([
 			
 			// Preparar modelos adicionales para la vista
 			this._prepararModelosUsuario(oUserModel);
+		},
+			async loadUsersFromUserAPI() {
+			try {
+
+				const userInfo = await $.ajax({
+					url: "/services/userapi/currentUser",
+					method: "GET",
+					headers: {
+						"Accept": "application/json"
+					}
+				});
+
+				var bIsDev = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+				var sEmailTemp = bIsDev ? "guillermo.quattrocchi@altromondo.com.ar" : userInfo.email;
+				var sEmail = (sEmailTemp === "mgutierrez@inclusion.cloud") ? "sdbracamonte@gmail.com" : sEmailTemp;
+
+				const cuits = await this.getCuitAsociados(sEmail);
+
+				const sUrl = `/destinations/USER_API/Users?filter=emails eq '${sEmail}'`;
+				const userApiResponse = await $.ajax({
+					url: sUrl,
+					type: "GET",
+					contentType: "application/scim+json",
+					dataType: "json"
+				});
+
+				const aUsers = userApiResponse.Resources || [];
+				if (aUsers.length === 0) {
+					throw new Error("No se encontró el usuario en USER_API.");
+				}
+
+				const oUser = aUsers[0];
+				const aGroups = oUser.groups.map(g => g.display);
+
+				return {
+					email: sEmail,
+					cuits,
+					user: oUser,
+					groups: aGroups
+				};
+
+			} catch (err) {
+				console.error("Error en loadUsersFromUserAPI:", err);
+				sap.m.MessageBox.error("No se pudo obtener la información del usuario.");
+				throw err;
+			}
+		},
+			getCuitAsociados: function (email) {
+			return new Promise((resolve, reject) => {
+				const oModel = this.getView().getModel("oData");
+				const datosGen = this.getView().getModel("datosGenerales");
+				const combo = this.byId("inputCUIT");
+
+				const aFilters = [
+					new sap.ui.model.Filter("email", sap.ui.model.FilterOperator.EQ, email)
+				];
+
+				oModel.read("/CuitsAsociadosSet", {
+					filters: aFilters,
+					success: (oData) => {
+						const results = Array.isArray(oData.results) ? oData.results : [];
+
+						// 1) Filtrar admin = "X" y deduplicar por CUIT
+						const mapByCuit = new Map();
+						for (const r of results) {
+							const cuit = String(r.cuit || "").trim();
+							if (!cuit || r.adminUser !== "X") continue;
+							if (!mapByCuit.has(cuit)) mapByCuit.set(cuit, r);
+						}
+						const adminRows = Array.from(mapByCuit.values());
+
+						// 2) Adaptar al esquema del ComboBox { id, descripcion }
+						const items = adminRows.map(r => ({
+							id: String(r.cuit).trim(),
+							descripcion: `${String(r.cuit).trim()} - ${(r.razonSocial || "").trim()}`
+						})).sort((a, b) => a.id.localeCompare(b.id));
+
+						// 3) Setear modelo del ComboBox
+						const cuitsModel = new sap.ui.model.json.JSONModel(items);
+						this.getView().setModel(cuitsModel, "CuitsModel");
+
+						// 3b) También actualizar el usersModel del componente con los resultados crudos
+						try {
+							const oCompUsersModel = this.getOwnerComponent().getModel("usersModel");
+							if (oCompUsersModel) {
+								oCompUsersModel.setProperty("/", results);
+							}
+						} catch (e) {
+							// no crítico, continuar
+						}
+
+						// 4) Mantener selección previa si es válida, o decidir selección/edición
+						const prev = String(datosGen.getProperty("/Cuit") || "").trim();
+						const hasPrev = !!prev && items.some(it => it.id === prev);
+
+						if (hasPrev) {
+							// Mantengo la selección previa
+							combo.setEditable(items.length > 1);
+						} else if (items.length === 1) {
+							// Autoselección cuando hay un único CUIT
+							datosGen.setProperty("/Cuit", items[0].id);
+							combo.setEditable(false);
+						} else if (items.length > 1) {
+							// Varias opciones: habilitar para que el usuario elija
+							datosGen.setProperty("/Cuit", "");
+							combo.setEditable(true);
+						} else {
+							// Sin resultados admin
+							datosGen.setProperty("/Cuit", "");
+							combo.setEditable(false);
+						}
+
+						resolve(items.map(it => it.id));
+					},
+					error: (err) => {
+						sap.m.MessageBox.warning("No se pudieron obtener los CUITs asociados.");
+						reject(err);
+					}
+				});
+			});
 		},
 
 		_prepararModelosUsuario: function (oUserModel) {
