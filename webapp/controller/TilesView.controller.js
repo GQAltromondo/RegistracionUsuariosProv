@@ -14,44 +14,39 @@ sap.ui.define([
 		onInit: function () {
 			this.getRouter().getRoute("TilesView").attachPatternMatched(this._onRouteMatched, this);
 		},
-			_onRouteMatched: function () {
-			this.byId("cuitComboBox").setSelectedKey("");
-			const oUserModel = this.getOwnerComponent().getModel("usersModel");
-			const oData = oUserModel.getData();
+			_onRouteMatched: async function () {
+				this.byId("cuitComboBox").setSelectedKey("");
 
-			// Validar si hay datos de usuario; si no hay, intentar obtenerlos desde USER_API
-			if (!oData ||
-				(Array.isArray(oData) && oData.length === 0) ||
-				(typeof oData === "object" && !Array.isArray(oData) && Object.keys(oData).length === 0)) {
-				this.loadUsersFromUserAPI()
-					.then(async (res) => {
-						try {
-							// getCuitAsociados actualizará el modelo de CUITs y también el usersModel
-							await this.getCuitAsociados(res.email);
-							const oUserModelUpdated = this.getOwnerComponent().getModel("usersModel");
-							const oDataUpdated = oUserModelUpdated.getData();
-							if (!oDataUpdated || (Array.isArray(oDataUpdated) && oDataUpdated.length === 0)) {
-								this.navTo("Login");
-								return;
-							}
-							this.getView().setModel(oUserModelUpdated);
-							this.onCuitChange();
-							this._prepararModelosUsuario(oUserModelUpdated);
-						} catch (e) {
-							this.navTo("Login");
-						}
-					})
-					.catch(() => {
+				// Intentar por defecto cargar el usuario desde IAS y obtener CUITs
+				try {
+					const res = await this.loadUsersFromUserAPI();
+					// getCuitAsociados actualiza usersModel y CuitsModel
+					await this.getCuitAsociados(res.email);
+					const oUserModelUpdated = this.getOwnerComponent().getModel("usersModel");
+					const oDataUpdated = oUserModelUpdated.getData();
+					if (!oDataUpdated || (Array.isArray(oDataUpdated) && oDataUpdated.length === 0)) {
 						this.navTo("Login");
-					});
-				return;
-			}
+						return;
+					}
+					this.getView().setModel(oUserModelUpdated);
+					this.onCuitChange();
+					this._prepararModelosUsuario(oUserModelUpdated);
+					return;
+				} catch (e) {
+					// Si falla, intentar usar usersModel existente y si no hay datos redirigir a Login
+					const oUserModel = this.getOwnerComponent().getModel("usersModel");
+					const oData = oUserModel.getData();
+					if (!oData ||
+						(Array.isArray(oData) && oData.length === 0) ||
+						(typeof oData === "object" && !Array.isArray(oData) && Object.keys(oData).length === 0)) {
+						this.navTo("Login");
+						return;
+					}
+					this.getView().setModel(oUserModel);
+					this.onCuitChange();
+					this._prepararModelosUsuario(oUserModel);
+				}
 
-			this.getView().setModel(oUserModel);
-			this.onCuitChange();
-			
-			// Preparar modelos adicionales para la vista
-			this._prepararModelosUsuario(oUserModel);
 		},
 			async loadUsersFromUserAPI() {
 			try {
