@@ -11,10 +11,7 @@ sap.ui.define([
 
 	return BaseController.extend("sacde.RegistracionUsuariosProv.controller.TilesView", {
 
-		onInit: function () {
-			this.getRouter().getRoute("TilesView").attachPatternMatched(this._onRouteMatched, this);
-		},
-			_onRouteMatched: async function () {
+			onInit: async function () {
 				this.byId("cuitComboBox").setSelectedKey("");
 
 				// Intentar por defecto cargar el usuario desde IAS y obtener CUITs
@@ -110,7 +107,7 @@ sap.ui.define([
 			return new Promise((resolve, reject) => {
 				const oModel = this.getView().getModel("oData");
 				const datosGen = this.getView().getModel("datosGenerales");
-				const combo = this.byId("inputCUIT");
+				const combo = this.byId("cuitComboBox");
 
 				const aFilters = [
 					new sap.ui.model.Filter("email", sap.ui.model.FilterOperator.EQ, email)
