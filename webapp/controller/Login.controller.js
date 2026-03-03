@@ -24,11 +24,26 @@ sap.ui.define([
 			const loginModel = ModelHelper.getModel(oView, "loginModel");
 			const loginData = loginModel.getData();
 
+			// Validaciones básicas en cliente
+			const sEmail = (loginData.email || "").toString().trim();
+			const sPassword = (loginData.password || "").toString();
+
+			if (!sEmail || !sPassword) {
+				MessageToast.show("Ingrese email y contraseña.");
+				return;
+			}
+
+			const emailRegex = /^\S+@\S+\.\S+$/;
+			if (!emailRegex.test(sEmail)) {
+				MessageToast.show("Ingrese un email válido.");
+				return;
+			}
+
 			const oDataModel = oView.getModel("oData");
 
 			const aFilters = [
-				new sap.ui.model.Filter("email", sap.ui.model.FilterOperator.EQ, loginData.email),
-				new sap.ui.model.Filter("contrasena", sap.ui.model.FilterOperator.EQ, loginData.password)
+				new sap.ui.model.Filter("email", sap.ui.model.FilterOperator.EQ, sEmail),
+				new sap.ui.model.Filter("contrasena", sap.ui.model.FilterOperator.EQ, sPassword)
 			];
 
 			this.showBusy();
